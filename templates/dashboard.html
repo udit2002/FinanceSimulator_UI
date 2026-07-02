@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - Personal Finance Simulator{% endblock %}
+{% block content %}
+<h3 class="page-title">Dashboard</h3>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="label">Total Balance</div>
+            <div class="value">${{ "%.2f"|format(total_balance) }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card income">
+            <div class="label">Total Income</div>
+            <div class="value">${{ "%.2f"|format(income) }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card expense">
+            <div class="label">Total Expenses</div>
+            <div class="value">${{ "%.2f"|format(expenses) }}</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="label">Net</div>
+            <div class="value {{ 'amount-positive' if net >= 0 else 'amount-negative' }}">${{ "%.2f"|format(net) }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h5>Income vs Expenses</h5>
+            <canvas id="incomeExpenseChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h5>Spending by Category</h5>
+            <canvas id="categoryChart" height="220"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-panel h-100">
+            <h5>Spending Trend</h5>
+            <canvas id="trendChart" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Accounts</h5>
+            {% if accounts %}
+            <table class="table table-sm">
+                <thead><tr><th>Name</th><th>Type</th><th class="text-end">Balance</th></tr></thead>
+                <tbody>
+                {% for a in accounts %}
+                    <tr>
+                        <td>{{ a.name }}</td>
+                        <td><span class="badge text-bg-light border">{{ a.type }}</span></td>
+                        <td class="text-end">${{ "%.2f"|format(a.balance) }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No accounts yet. <a href="{{ url_for('accounts_page') }}">Create one</a>.</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Recent Transactions</h5>
+            {% if recent %}
+            <table class="table table-sm">
+                <thead><tr><th>Type</th><th>Category</th><th class="text-end">Amount</th><th>Date</th></tr></thead>
+                <tbody>
+                {% for t in recent %}
+                    <tr>
+                        <td><span class="badge badge-type text-bg-light border">{{ t.type }}</span></td>
+                        <td>{{ t.category }}</td>
+                        <td class="text-end {{ 'amount-positive' if t.type in ['Deposit', 'Transfer In'] else 'amount-negative' }}">
+                            {{ '+' if t.type in ['Deposit', 'Transfer In'] else '-' }}${{ "%.2f"|format(t.amount) }}
+                        </td>
+                        <td>{{ t.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No transactions yet.</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h5>Budgets</h5>
+    {% if budgets %}
+        {% for b in budgets %}
+        <div class="mb-2">
+            <div class="d-flex justify-content-between small">
+                <span>{{ b.category }}</span>
+                <span>${{ "%.2f"|format(b.spent) }} / ${{ "%.2f"|format(b.limit_amount) }}</span>
+            </div>
+            <div class="progress">
+                <div class="progress-bar {{ 'bg-danger' if b.exceeded else 'bg-success' }}" style="width: {{ b.pct }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">No budgets set. <a href="{{ url_for('budgets_page') }}">Set one up</a>.</div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function loadJSON(url) {
+    const res = await fetch(url);
+    return res.json();
+}
+
+(async () => {
+    const ie = await loadJSON("{{ url_for('api_income_vs_expense') }}");
+    new Chart(document.getElementById('incomeExpenseChart'), {
+        type: 'bar',
+        data: {
+            labels: ['Income', 'Expenses'],
+            datasets: [{
+                data: [ie.income, ie.expenses],
+                backgroundColor: ['#16a34a', '#dc2626'],
+                borderRadius: 6,
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+
+    const cat = await loadJSON("{{ url_for('api_spending_by_category') }}");
+    new Chart(document.getElementById('categoryChart'), {
+        type: 'doughnut',
+        data: {
+            labels: cat.labels,
+            datasets: [{
+                data: cat.values,
+                backgroundColor: ['#2563eb', '#16a34a', '#f59e0b', '#dc2626', '#8b5cf6', '#0891b2', '#db2777'],
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12 } } } }
+    });
+
+    const trend = await loadJSON("{{ url_for('api_spending_trend') }}");
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: trend.labels,
+            datasets: [{
+                label: 'Spending',
+                data: trend.values,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: { plugins: { legend: { display: false } } }
+    });
+})();
+</script>
+{% endblock %}

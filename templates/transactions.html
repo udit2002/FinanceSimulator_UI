@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+{% block title %}Transactions - Personal Finance Simulator{% endblock %}
+{% block content %}
+<h3 class="page-title">Transactions</h3>
+
+<div class="row g-3 mb-1">
+    <div class="col-lg-4">
+        <div class="card-panel">
+            <h5>Deposit</h5>
+            <form method="post" action="{{ url_for('transactions_deposit') }}">
+                <div class="mb-2">
+                    <label class="form-label">Account</label>
+                    <select class="form-select" name="acc_id" required>
+                        {% for a in accounts %}
+                        <option value="{{ a.acc_id }}">{{ a.name }} (#{{ a.acc_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Amount</label>
+                    <input class="form-control" type="number" step="0.01" min="0.01" name="amount" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <input class="form-control" name="category" value="Deposit">
+                </div>
+                <button class="btn btn-success w-100" type="submit">Deposit</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-panel">
+            <h5>Withdraw</h5>
+            <form method="post" action="{{ url_for('transactions_withdraw') }}">
+                <div class="mb-2">
+                    <label class="form-label">Account</label>
+                    <select class="form-select" name="acc_id" required>
+                        {% for a in accounts %}
+                        <option value="{{ a.acc_id }}">{{ a.name }} (#{{ a.acc_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">Amount</label>
+                    <input class="form-control" type="number" step="0.01" min="0.01" name="amount" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <input class="form-control" name="category" value="General">
+                </div>
+                <button class="btn btn-danger w-100" type="submit">Withdraw</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-panel">
+            <h5>Transfer</h5>
+            <form method="post" action="{{ url_for('transactions_transfer') }}">
+                <div class="mb-2">
+                    <label class="form-label">From Account</label>
+                    <select class="form-select" name="from_acc" required>
+                        {% for a in accounts %}
+                        <option value="{{ a.acc_id }}">{{ a.name }} (#{{ a.acc_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label">To Account</label>
+                    <select class="form-select" name="to_acc" required>
+                        {% for a in accounts %}
+                        <option value="{{ a.acc_id }}">{{ a.name }} (#{{ a.acc_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Amount</label>
+                    <input class="form-control" type="number" step="0.01" min="0.01" name="amount" required>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Transfer</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h5>History</h5>
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-3">
+            <select class="form-select form-select-sm" name="category">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                <option value="{{ c }}" {{ 'selected' if filters.category == c }}>{{ c }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select class="form-select form-select-sm" name="type">
+                <option value="">All Types</option>
+                {% for t in types %}
+                <option value="{{ t }}" {{ 'selected' if filters.type == t }}>{{ t }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control form-control-sm" name="start" value="{{ filters.start or '' }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" class="form-control form-control-sm" name="end" value="{{ filters.end or '' }}">
+        </div>
+        <div class="col-md-2 d-flex gap-2">
+            <button class="btn btn-sm btn-outline-primary flex-fill" type="submit">Filter</button>
+            <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('transactions_page') }}">Reset</a>
+        </div>
+    </form>
+
+    {% if transactions %}
+    <table class="table table-sm">
+        <thead><tr><th>ID</th><th>Account</th><th>Type</th><th class="text-end">Amount</th><th>Category</th><th>Date</th></tr></thead>
+        <tbody>
+        {% for t in transactions %}
+            <tr>
+                <td>{{ t.trans_id }}</td>
+                <td>{{ t.acc_id }}</td>
+                <td><span class="badge badge-type text-bg-light border">{{ t.type }}</span></td>
+                <td class="text-end {{ 'amount-positive' if t.type in ['Deposit', 'Transfer In'] else 'amount-negative' }}">
+                    {{ '+' if t.type in ['Deposit', 'Transfer In'] else '-' }}${{ "%.2f"|format(t.amount) }}
+                </td>
+                <td>{{ t.category }}</td>
+                <td>{{ t.date.strftime('%Y-%m-%d %H:%M') }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No matching transactions.</div>
+    {% endif %}
+</div>
+{% endblock %}

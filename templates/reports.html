@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Reports - Personal Finance Simulator{% endblock %}
+{% block content %}
+<h3 class="page-title">Financial Reports</h3>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-6">
+        <div class="stat-card income">
+            <div class="label">Total Income</div>
+            <div class="value">${{ "%.2f"|format(income) }}</div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card expense">
+            <div class="label">Total Expenses</div>
+            <div class="value">${{ "%.2f"|format(expenses) }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="card-panel">
+    <h5>Spending by Category</h5>
+    {% if by_category %}
+    <table class="table table-sm">
+        <thead><tr><th>Category</th><th class="text-end">Total Spent</th></tr></thead>
+        <tbody>
+        {% for row in by_category %}
+            <tr>
+                <td>{{ row.category }}</td>
+                <td class="text-end">${{ "%.2f"|format(row.total) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No expense data found.</div>
+    {% endif %}
+</div>
+
+<div class="card-panel">
+    <h5>Need transaction-level detail?</h5>
+    <p class="text-muted mb-2">Use the filters on the <a href="{{ url_for('transactions_page') }}">Transactions</a> page to filter by category, type, or date range.</p>
+</div>
+{% endblock %}

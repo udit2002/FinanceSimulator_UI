@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Export - Personal Finance Simulator{% endblock %}
+{% block content %}
+<h3 class="page-title">Export Statements (CSV)</h3>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Export All Transactions</h5>
+            <p class="text-muted">Download the full transaction history as CSV.</p>
+            <a class="btn btn-primary" href="{{ url_for('export_all') }}">Download All</a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Export by Account</h5>
+            <form method="get" action="{{ url_for('export_account') }}">
+                <div class="mb-3">
+                    <label class="form-label">Account</label>
+                    <select class="form-select" name="acc_id">
+                        {% for a in accounts %}
+                        <option value="{{ a.acc_id }}">{{ a.name }} (#{{ a.acc_id }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Download Statement</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Export by Category</h5>
+            <form method="get" action="{{ url_for('export_category') }}">
+                <div class="mb-3">
+                    <label class="form-label">Category</label>
+                    <select class="form-select" name="category">
+                        {% for c in categories %}
+                        <option value="{{ c }}">{{ c }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button class="btn btn-primary" type="submit">Download Category CSV</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card-panel">
+            <h5>Export by Date Range</h5>
+            <form method="get" action="{{ url_for('export_date_range') }}">
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Start</label>
+                        <input class="form-control" type="date" name="start" required>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">End</label>
+                        <input class="form-control" type="date" name="end" required>
+                    </div>
+                </div>
+                <button class="btn btn-primary" type="submit">Download Range CSV</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Budgets - Personal Finance Simulator{% endblock %}
+{% block content %}
+<h3 class="page-title">Budget Management</h3>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card-panel">
+            <h5>Budgets</h5>
+            {% if budgets %}
+            <table class="table table-sm align-middle">
+                <thead><tr><th>Category</th><th class="text-end">Limit</th><th class="text-end">Spent</th><th class="text-end">Remaining</th><th></th></tr></thead>
+                <tbody>
+                {% for b in budgets %}
+                    <tr>
+                        <td>
+                            {{ b.category }}
+                            {% if b.exceeded %}<span class="badge text-bg-danger ms-1">Exceeded</span>{% endif %}
+                            <div class="progress mt-1" style="width: 140px;">
+                                <div class="progress-bar {{ 'bg-danger' if b.exceeded else 'bg-success' }}" style="width: {{ b.pct }}%"></div>
+                            </div>
+                        </td>
+                        <td class="text-end">${{ "%.2f"|format(b.limit_amount) }}</td>
+                        <td class="text-end">${{ "%.2f"|format(b.spent) }}</td>
+                        <td class="text-end {{ 'amount-negative' if b.remaining < 0 else '' }}">${{ "%.2f"|format(b.remaining) }}</td>
+                        <td class="text-end">
+                            <form method="post" action="{{ url_for('budgets_reset', category=b.category) }}"
+                                  onsubmit="return confirm('Reset spent amount for {{ b.category }}?');">
+                                <button class="btn btn-sm btn-outline-secondary" type="submit">Reset</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="empty-state">No budgets set yet.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card-panel">
+            <h5>Set / Update Budget</h5>
+            <form method="post" action="{{ url_for('budgets_set') }}">
+                <div class="mb-2">
+                    <label class="form-label">Category</label>
+                    <input class="form-control" name="category" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Budget Amount</label>
+                    <input class="form-control" type="number" step="0.01" min="0.01" name="limit_amount" required>
+                </div>
+                <button class="btn btn-primary w-100" type="submit">Save Budget</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

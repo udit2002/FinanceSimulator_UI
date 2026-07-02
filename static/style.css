@@ -1,0 +1,160 @@
+:root {
+    --brand: #2563eb;
+    --brand-dark: #1e3a8a;
+    --bg: #f4f6fb;
+    --card-bg: #ffffff;
+    --ink: #1f2937;
+    --muted: #6b7280;
+    --green: #16a34a;
+    --red: #dc2626;
+    --border: #e5e7eb;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+.app-shell {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: linear-gradient(180deg, var(--brand-dark), #0f172a);
+    color: #e2e8f0;
+    padding: 1.25rem 0.75rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    padding: 0.5rem 0.75rem 1.5rem;
+}
+
+.sidebar-brand i {
+    font-size: 1.4rem;
+    color: #60a5fa;
+}
+
+.sidebar-nav .nav-link {
+    color: #cbd5e1;
+    border-radius: 8px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.15rem;
+    font-size: 0.94rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-nav .nav-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.sidebar-nav .nav-link.active {
+    background: var(--brand);
+    color: #fff;
+}
+
+.content {
+    flex: 1;
+    min-width: 0;
+}
+
+.content-inner {
+    padding: 2rem 2.25rem;
+    max-width: 1200px;
+}
+
+.flash-stack {
+    margin-bottom: 1rem;
+}
+
+.page-title {
+    font-weight: 700;
+    margin-bottom: 1.25rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    height: 100%;
+}
+
+.stat-card .label {
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.35rem;
+}
+
+.stat-card .value {
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.stat-card.income .value { color: var(--green); }
+.stat-card.expense .value { color: var(--red); }
+
+.card-panel {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem 1.4rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-panel h5 {
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.6rem 0.75rem;
+    vertical-align: middle;
+}
+
+.amount-positive { color: var(--green); font-weight: 600; }
+.amount-negative { color: var(--red); font-weight: 600; }
+
+.badge-type {
+    font-weight: 500;
+}
+
+.progress {
+    height: 8px;
+}
+
+.chart-thumb {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+}
+
+.empty-state {
+    color: var(--muted);
+    padding: 2rem 0;
+    text-align: center;
+}
